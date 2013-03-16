@@ -1,0 +1,29 @@
+{
+  "author": "Ania i Marta",
+  "name": "optimal-giant-server",
+  "description": "Module for organize parallel computation of the Optimal Giant",
+  "contributors": [ 
+    {
+      "name": "Marta Ry³ko",
+      "email": "rylko.marta@gmail.com"
+    },
+	 {
+      "name": "Anna Skiba",
+      "email": "annam.skiba@gmail.com"
+    }
+  ],
+  "version": "0.0.1",
+  "homepage": "",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "engines": {
+    "node": ">=0.6.x",
+    "npm":  "1.1.x"
+  },
+  "dependencies": {
+   "coffee-script": "1.4.0",
+   "socket.io": "*"
+  }
+}

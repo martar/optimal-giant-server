@@ -25,6 +25,9 @@
   "dependencies": {
    "coffee-script": "1.4.0",
    "socket.io": "*",
-   "socket.io-client": "*"x`
+   "socket.io-client": "*",
+   "express": "3.x",
+   "cradle": "*",
+   "jquery": "*"
   }
 }

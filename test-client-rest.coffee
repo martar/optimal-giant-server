@@ -22,6 +22,7 @@ getProblemInstance = () ->
 
 postProblemSolved = (result) ->
 	console.log "[Client][REST] Sendng result to server"
+	console.dir result
 	$.ajax
 		type: 'POST'
 		url: SERVER_URL + "slalom"
@@ -29,7 +30,8 @@ postProblemSolved = (result) ->
 		dataType: "json"
 		ContentType: "application/json; charset=UTF-8"
 		success: (data) -> 
-			console.log "[Client][REST] Result posted succesfully: #{data}" 
+			console.log "[Client][REST] Result posted succesfully"
+			console.dir data
 		error: (evt) ->
 			console.log "[Client][REST] Error posting the result: #{evt}"
 			
@@ -41,6 +43,7 @@ computation = (data) ->
 			"my_optimal_track": [],
 			"time": 32.23
 		}
+		result.problem_instance = data.id
 		postProblemSolved(result)
 	
 

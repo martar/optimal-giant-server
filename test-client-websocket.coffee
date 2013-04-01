@@ -16,7 +16,7 @@ socket.on 'ready', () ->
 socket.on 'sendingProblemInstance', (giantInstance) ->
 	console.log "[Client][Websocket] Got the problem instance from the server."
 	console.dir giantInstance
-	computation()
+	computation(giantInstance)
 	
 getProblemInstance = () ->
 	socket.emit('getProblemInstance', {})
@@ -34,4 +34,5 @@ computation = (data) ->
 			"my_optimal_track": [],
 			"time": 32.23
 		}
+		result.problem_instance = data.id
 		postProblemSolved(result)

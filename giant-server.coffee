@@ -32,15 +32,16 @@ db.exists (err, exists) ->
 		console.log "[Server][CouchDB] I created it." 
 
 createDbViews = () ->
+	# be careful not to use CONSTANTS in the equasion. Cuz this functions are send as they are (without binding to availables variables 	 
 	db.save '_design/problems', {
 		all: {
 			map: (doc) ->
-				if (doc.type)
+				if (doc.type == 'GIANT_PROBLEM')
 					emit(doc.type, doc)
 		},
 		not_solved: {
 			map: (doc) ->
-				if (doc.type && doc.status == 'NOT_SOLVED')
+				if (doc.type  == 'GIANT_PROBLEM' && doc.status == 'NOT_SOLVED')
 					emit(doc.type, doc)
 		}
 	}		
@@ -51,8 +52,7 @@ getFirstProblem = (fun) ->
 			console.log "[Server][CouchDB] Fail to get all problems"
 		else
 			fun(res[0])
-			res.forEach (r) ->
-				console.log r
+			console.log "[Server][CouchDB] Getting the first problem from db"
 	
 saveToDb = (problem) ->
 	console.log problem
@@ -86,7 +86,9 @@ Post the result of solving problem instance by the client
 ###
 app.post '/slalom', (req, res) ->
 	console.log "[Server][REST] Got problem result."
+	console.dir req.body
 	res.send({ msg: "Thanks"})
+	
 
 ###
 Return the problem instance for the client to solve
@@ -109,4 +111,4 @@ io.sockets.on 'connection', (socket) ->
 	socket.on 'postingProblemSolution', (result) ->
 		socket.get 'nickname', (err, name) ->
 			console.log "[Server][Websocket] Got problem result from #{name}"
-			# console.log result
+			console.dir result

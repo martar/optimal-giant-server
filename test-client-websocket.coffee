@@ -15,7 +15,7 @@ socket.on 'ready', () ->
 	
 socket.on 'sendingProblemInstance', (giantInstance) ->
 	console.log "[Client][Websocket] Got the problem instance from the server."
-	# console.log giantInstance
+	console.dir giantInstance
 	computation()
 	
 getProblemInstance = () ->

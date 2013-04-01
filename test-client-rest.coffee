@@ -15,12 +15,13 @@ getProblemInstance = () ->
 		dataType: "json"
 		success: (data) -> 
 			console.log "[Client][REST] Got the problem instance from the server."
+			console.dir data
 			computation(data)
 		error: (evt) ->
 			console.log "[Client][REST]  Error getting the prolem instance: #{evt}"
 
 postProblemSolved = (result) ->
-	console.log "[Client][REST]  Sendng result to server"
+	console.log "[Client][REST] Sendng result to server"
 	$.ajax
 		type: 'POST'
 		url: SERVER_URL + "slalom"

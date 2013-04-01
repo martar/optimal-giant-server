@@ -2,7 +2,6 @@ $ = require('jquery')
 SERVER_URL = 'http://localhost:8080/'
 
 giantProblem = {
-    "id": "trol2",
 	"desc": "Wow",
 	"gates": [],
 	"params": {}
@@ -17,12 +16,10 @@ submitProblem = () ->
 		dataType: "json"
 		ContentType: "application/json; charset=UTF-8"
 		success: (data) -> 
-			console.log "[Client][REST] Submitted succesfully" 
+		console.log "[Client][REST] Submitted succesfully" 
 		error: (evt) ->
 			console.log "[Client][REST] Error submitting: #{evt}"
-			
 
-	
 submitProblem()
 	
 		

@@ -1,7 +1,8 @@
-express = require('express')
-app = express.createServer()
-socket = require('socket.io')
+express = require 'express'
+socket = require 'socket.io'
 cradle = require 'cradle'
+
+app = express.createServer()
 
 app.configure () ->
 	app.use(express.static(__dirname + '/'))
@@ -11,8 +12,9 @@ app.use(express.bodyParser());
 server = app.listen(8080)
 io = socket.listen(server)
 
+DATABASE_NAME = "optimal-giant"
 
-db = new(cradle.Connection)().database('starwars')
+db = new(cradle.Connection)().database(DATABASE_NAME)
 db.exists (err, exists) ->
 	if (err)
 		console.log "[Server][CouchDB] Error checking for db existance #{err}" 
@@ -23,6 +25,13 @@ db.exists (err, exists) ->
 		db.create()
 		console.log "[Server][CouchDB] I created it." 
 
+saveToDb = (problem) ->
+	db.save DATABASE_NAME, problem, (err, res) ->
+		if (err)
+			console.log err
+		else
+			console.log "[Server][CouchDB] I saved the problem instance."
+			
 giantProblem = {
     "id": "trol1",
 	"desc": "Dear client, this is a giant problem for you to solve",
@@ -36,6 +45,7 @@ Post the problem instance that shall be stored in the db and distribite to clien
 app.post '/problem', (req, res) ->
 	console.log "[Server][REST] Got problem instance proposition"
 	console.log req.body
+	saveToDb(req.body)
 	res.send({})
   
 ###

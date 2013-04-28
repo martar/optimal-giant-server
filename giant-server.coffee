@@ -64,6 +64,14 @@ saveToDb = (problem) ->
 		else
 			console.log "[Server][CouchDB] I saved the problem instance."
 			
+
+saveResultToDb = (result) ->
+	console.log result
+	db.save result, (err, res) ->
+		if (err)
+			console.log err
+		else
+			console.log "[Server][CouchDB] I saved the result instance."
 			
 giantProblem = {
     "id": "trol1",
@@ -73,11 +81,20 @@ giantProblem = {
 }
 
 ###
+Required in order to allow Cross-origin resource sharing (client that request resurces is in other domain that the server is) 
+###
+app.all '/*', (req, res, next) ->
+  res.header("Access-Control-Allow-Origin", "*")
+  res.header("Access-Control-Allow-Headers", "X-Requested-With")
+  next()
+
+###
 Post the problem instance that shall be stored in the db and distribite to clients that want to resolve it.
 ###
 app.post '/problem', (req, res) ->
 	console.log "[Server][REST] Got problem instance proposition"
 	console.log req.body
+	
 	saveToDb(req.body)
 	res.send({})
   
@@ -87,6 +104,7 @@ Post the result of solving problem instance by the client
 app.post '/slalom', (req, res) ->
 	console.log "[Server][REST] Got problem result."
 	console.dir req.body
+	saveResultToDb req.body
 	res.send({ msg: "Thanks"})
 	
 

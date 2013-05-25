@@ -9,7 +9,7 @@ app.configure () ->
   
 app.use(express.bodyParser())
 
-server = app.listen(8080)
+server = app.listen(process.env.PORT || 8080)
 io = socket.listen(server)
 
 DATABASE_NAME = "giant1"

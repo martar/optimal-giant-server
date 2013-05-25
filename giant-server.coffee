@@ -9,7 +9,7 @@ app.configure () ->
   
 app.use(express.bodyParser())
 
-server = app.listen(process.env.PORT || 8080)
+server = app.listen(process.env.PORT || 5000)
 io = socket.listen(server)
 
 DATABASE_NAME = "giant1"
@@ -21,7 +21,7 @@ db = new(cradle.Connection)('https://giant:ala123@giant.cloudant.com', 443, {
 	cache: true,
 	raw: false
 }).database("giant")
-  
+
 db.exists (err, exists) ->
 	if (err)
 		console.log "[Server][CouchDB] Error checking for db existance #{err}" 
@@ -58,7 +58,14 @@ getFirstProblem = (fun) ->
 			console.log "[Server][CouchDB] Getting the first problem from db"
 	
 saveToDb = (problem) ->
-	console.log problem
+	console.log problem.closedGates.length
+	for i in [0...problem.closedGates.length]
+		console.log "LOOL"
+		problem.closedGates[i] = parseInt(problem.closedGates[i], 10)
+	for i in [0...problem.giantGates.length]
+		x =  parseInt(problem.giantGates[i][0], 10)
+		y =  parseInt(problem.giantGates[i][1], 10)
+		problem.giantGates[i] = [x,y]
 	problem.type = GIANT_PROBLEM_TYPE
 	problem.status = NOT_SOLVED_STATUS
 	db.save problem, (err, res) ->

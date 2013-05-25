@@ -1,7 +1,7 @@
 io = require('socket.io-client')
 fancyNickname = require('./fancy-nickname')
 $ = require('jquery')
-SERVER_URL = 'http://localhost:8080/'
+SERVER_URL = 'http://giant-server.herokuapp.com:80/'
 
         
 wait = (milisec, fun) ->

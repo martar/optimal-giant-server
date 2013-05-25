@@ -1,5 +1,5 @@
 $ = require('jquery')
-SERVER_URL = 'http://localhost:8080/'
+SERVER_URL = 'http://giant-server.herokuapp.com:80/'
 
 giantProblem = {
 	"giantGates" : [[3,10],[-5,30],[4,50],[-4,65],[-16,80],[-6,100],[-13,120],[-10,135]]

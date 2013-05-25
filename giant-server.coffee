@@ -17,8 +17,11 @@ GIANT_PROBLEM_TYPE = "GIANT_PROBLEM"
 SOLVED_STATUS = "SOLVED"
 NOT_SOLVED_STATUS = "NOT_SOLVED"
 
-db = new(cradle.Connection)().database(DATABASE_NAME)
-
+db = new(cradle.Connection)('https://giant:ala123@giant.cloudant.com', 443, {
+	cache: true,
+	raw: false
+}).database("giant")
+  
 db.exists (err, exists) ->
 	if (err)
 		console.log "[Server][CouchDB] Error checking for db existance #{err}" 

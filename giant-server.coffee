@@ -53,14 +53,8 @@ createDbViews = () ->
 		results: {
 			map: (doc) ->
 				if (doc.type  == 'GIANT_RESULT')
-					emit(doc._id, parseFloat(doc.bestTime))
+					emit(doc.problem_id, parseFloat(doc.bestTime))
 			reduce: "_stats"
-			
-		},
-		lol: {
-			map: (doc) ->
-				if (doc.type  == 'GIANT_RESULT')
-					emit(doc._id, doc.problem_id)
 			
 		},
 		group: {
@@ -115,13 +109,13 @@ getFirstProblem = (fun) ->
 				getById min_id, fun
 
 getResults = (fun) ->
-	db.view 'problems/results', (err, res) ->
+	db.view 'problems/results', {group: true},(err, res) ->
 		if err
 			console.log "[Server][CouchDB] Fail to get all results"
 			console.dir err
 		else
-			fun(res)
 			console.log "[Server][CouchDB] Returning best result"
+			fun(res)
 
 			
 saveToDb = (problem) ->
@@ -184,12 +178,20 @@ app.post '/problem', (req, res) ->
 	res.send({})
   
 
-app.get '/result', (req, res) ->
+app.get '/result/:problem_id', (req, res) =>
+	console.log "[Server][REST] Quering for best result for a given problem"
+	getResults (results) =>
+		for result in results
+			if result.key == req.params.problem_id
+				console.log "[Server][REST] Min result for this problem is " + result.value.min
+				res.send({bestTimeInDb: result.value.min})
+  
+app.get '/result', (req, res) =>
 	console.log "[Server][REST] Quering for number of results."
-	getResults (result) ->
-		console.log result
-  
-  
+	getResults (result) =>
+		res.send(result)
+				
+				
 ###
 Post the result of solving problem instance by the client
 ###

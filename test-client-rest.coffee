@@ -1,7 +1,8 @@
 io = require('socket.io-client')
 fancyNickname = require('./fancy-nickname')
 $ = require('jquery')
-SERVER_URL = 'http://giant-server.herokuapp.com:80/'
+# SERVER_URL = 'http://giant-server.herokuapp.com:80/'
+SERVER_URL = 'http://localhost:5000/'
 
         
 wait = (milisec, fun) ->
@@ -20,6 +21,18 @@ getProblemInstance = () ->
 		error: (evt) ->
 			console.log "[Client][REST]  Error getting the prolem instance: #{evt}"
 
+getResult = () ->
+	console.log "[Client][REST]  Quering for result instance.."
+	$.ajax
+		type: 'GET'
+		url: SERVER_URL + "result"
+		dataType: "json"
+		success: (data) -> 
+			console.dir data
+		error: (evt) ->
+			console.log "[Client][REST]  Error getting the result instance: #{evt}"
+			console.dir evt
+			
 postProblemSolved = (result) ->
 	console.log "[Client][REST] Sendng result to server"
 	console.dir result
@@ -34,6 +47,7 @@ postProblemSolved = (result) ->
 			console.dir data
 		error: (evt) ->
 			console.log "[Client][REST] Error posting the result: #{evt}"
+
 			
 computation = (data) ->
 	console.log "[Client][REST] Starting computations.."
@@ -48,6 +62,6 @@ computation = (data) ->
 	
 
 	
-getProblemInstance()
-	
+# getProblemInstance()
+getResult()	
 		

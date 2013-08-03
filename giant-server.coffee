@@ -12,15 +12,18 @@ app.use(express.bodyParser())
 server = app.listen(process.env.PORT || 5000)
 io = socket.listen(server)
 
-DATABASE_NAME = "giant1"
+DATABASE_NAME = "giant"
 GIANT_PROBLEM_TYPE = "GIANT_PROBLEM"
 SOLVED_STATUS = "SOLVED"
 NOT_SOLVED_STATUS = "NOT_SOLVED"
 
-db = new(cradle.Connection)('https://giant:ala123@giant.cloudant.com', 443, {
+DB_URL = "127.0.0.1" # 'https://giant:ala123@giant.cloudant.com'
+DB_PORT = 5984 # 443
+
+db = new(cradle.Connection)(DB_URL, DB_PORT, {
 	cache: true,
 	raw: false
-}).database("giant")
+}).database(DATABASE_NAME)
 
 db.exists (err, exists) ->
 	if (err)
@@ -46,26 +49,91 @@ createDbViews = () ->
 			map: (doc) ->
 				if (doc.type  == 'GIANT_PROBLEM' && doc.status == 'NOT_SOLVED')
 					emit(doc.type, doc)
+		},
+		results: {
+			map: (doc) ->
+				if (doc.type  == 'GIANT_RESULT')
+					emit(doc._id, parseFloat(doc.bestTime))
+			reduce: "_stats"
+			
+		},
+		lol: {
+			map: (doc) ->
+				if (doc.type  == 'GIANT_RESULT')
+					emit(doc._id, doc.problem_id)
+			
+		},
+		group: {
+			map: (doc) ->
+				if (doc.type  == 'GIANT_RESULT')
+					emit(doc.problem_id, 1)
+			reduce :(key, values, rereduce) ->
+				sum(values)
+			
 		}
-	}		
+	}
 
-getFirstProblem = (fun) ->
-	db.view 'problems/all', (err, res) ->
+
+getById = (id, fun) ->
+	db.get id, (err, res) ->
 		if err
-			console.log "[Server][CouchDB] Fail to get all problems"
+			console.log err
 		else
-			fun(res[0])
-			console.log "[Server][CouchDB] Getting the first problem from db"
-	
+		    console.log res
+			fun(res)
+
+getFirstNeverSolvedProblem = (fun) ->
+	db.view 'problems/not_solved', (err, res) ->
+		if err
+			console.log "[Server][CouchDB] Fail to get a not solved problem"
+		else
+			if res.length == 0
+				# all problem were solved at least once
+				console.log "[Server][CouchDB] All problems were solved at least once"
+				getFirstProblem fun
+			else
+				console.log "[Server][CouchDB] Returning problem that was never solved before"
+				fun(res[0].value)
+			
+# get the giant problem
+getFirstProblem = (fun) ->
+	db.view 'problems/group', {group: true}, (err, res) ->
+		if err
+			console.log "[Server][CouchDB] Fail to get a problem"
+		else
+			min = 0
+			min_id = null
+			if res.length == 0
+				console.log "[Server] Fail to get any problem either not solved or solved"
+				return
+			else
+				for result,i in res
+					if result.value < min or i == 0
+						min = result.value
+						min_id = result.key
+				console.log "[Server] Returning probelm that was solved lowest number of time"
+				getById min_id, fun
+
+getResults = (fun) ->
+	db.view 'problems/results', (err, res) ->
+		if err
+			console.log "[Server][CouchDB] Fail to get all results"
+			console.dir err
+		else
+			fun(res)
+			console.log "[Server][CouchDB] Returning best result"
+
+			
 saveToDb = (problem) ->
 	console.log problem.closedGates.length
 	for i in [0...problem.closedGates.length]
-		console.log "LOOL"
 		problem.closedGates[i] = parseInt(problem.closedGates[i], 10)
 	for i in [0...problem.giantGates.length]
 		x =  parseInt(problem.giantGates[i][0], 10)
 		y =  parseInt(problem.giantGates[i][1], 10)
 		problem.giantGates[i] = [x,y]
+	for i in [0...problem.hasLeftSidePollGates.length]
+		problem.hasLeftSidePollGates[i] = parseInt(problem.hasLeftSidePollGates[i][0], 10)
 	problem.type = GIANT_PROBLEM_TYPE
 	problem.status = NOT_SOLVED_STATUS
 	db.save problem, (err, res) ->
@@ -76,12 +144,19 @@ saveToDb = (problem) ->
 			
 
 saveResultToDb = (result) ->
-	console.log result
 	db.save result, (err, res) ->
 		if (err)
 			console.log err
 		else
 			console.log "[Server][CouchDB] I saved the result instance."
+			console.log result.problem_id
+			console.log typeof(result.problem_id)
+			db.merge result.problem_id, { status: SOLVED_STATUS } , (err, doc) ->
+				if err
+					console.log "[Server][CouchDB] Problem updating the problem instance with the new solution"
+				else
+					console.log "[Server][CouchDB] I updated the problem instance with the new solution"
+			
 			
 giantProblem = {
     "id": "trol1",
@@ -108,6 +183,13 @@ app.post '/problem', (req, res) ->
 	saveToDb(req.body)
 	res.send({})
   
+
+app.get '/result', (req, res) ->
+	console.log "[Server][REST] Quering for number of results."
+	getResults (result) ->
+		console.log result
+  
+  
 ###
 Post the result of solving problem instance by the client
 ###
@@ -122,9 +204,10 @@ app.post '/slalom', (req, res) ->
 Return the problem instance for the client to solve
 ###
 app.get '/slalom', (req, res) ->
-	console.log "[Server][REST] Sending problem instance."
-	getFirstProblem (giantProblem) ->
+	getFirstNeverSolvedProblem (giantProblem) ->
+		console.dir giantProblem
 		res.send(giantProblem)
+		console.log "[Server][REST] Sending problem instance."
   
 io.sockets.on 'connection', (socket) ->
 	socket.on 'set nickname', (name) ->

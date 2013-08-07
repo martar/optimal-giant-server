@@ -19,7 +19,7 @@ NOT_SOLVED_STATUS = "NOT_SOLVED"
 
 DB_URL = process.env.DB_URI  ? "127.0.0.1"
 # DB_URL = 'https://giant:ala123@giant.cloudant.com'
-DB_URL = process.env.DB_PORT  ? "5984"
+DB_PORT = process.env.DB_PORT  ? "5984"
 # DB_PORT = 443
 
 db = new(cradle.Connection)(DB_URL, DB_PORT, {

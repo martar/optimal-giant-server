@@ -1,6 +1,6 @@
 $ = require('jquery')
 # SERVER_URL = 'http://giant-server.herokuapp.com:80/'
-SERVER_URL = 'http://localhost:5000/'
+SERVER_URL = process.env.SERVER_URI ? 'http://localhost:5000/'
 
 
 giantProblem = {
@@ -26,11 +26,11 @@ giantProblem3 = {
 
 submitProblem = () ->
 	console.log "[Client][REST] Submitting problem instance proposition to server"
-	console.log giantProblem3
+	console.log giantProblem
 	$.ajax
 		type: 'POST'
 		url: SERVER_URL + "problem"
-		data: giantProblem3
+		data: giantProblem
 		dataType: "json"
 		ContentType: "application/json; charset=UTF-8"
 		success: (data) -> 

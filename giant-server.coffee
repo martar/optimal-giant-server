@@ -210,8 +210,16 @@ Return the problem instance for the client to solve
 app.get '/slalom', (req, res) ->
 	getFirstNeverSolvedProblem (giantProblem) ->
 		console.dir giantProblem
-		res.send(giantProblem)
-		console.log "[Server][REST] Sending problem instance."
+		# if no result for this problem is known in the db, return some very big number
+		giantProblem.bestTimeInDb = 10000000
+		# send the best result that the server knows for this problem, if available
+		getResults (results) =>
+			for result in results
+				if result.key == giantProblem._id
+					giantProblem.bestTimeInDb = result.value.min
+				
+			res.send(giantProblem)
+			console.log "[Server][REST] Sending problem instance."
   
 io.sockets.on 'connection', (socket) ->
 	socket.on 'set nickname', (name) ->
